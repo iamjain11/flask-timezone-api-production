@@ -1,0 +1,19 @@
+FROM python:3.8-slim
+RUN groupadd -g 999 appuser && \
+    useradd -r -u 999 -g appuser appuser
+
+
+ENV TIMEZ_PORT=8080
+
+COPY requirements.txt /tmp
+RUN python -m pip install --no-cache-dir -r /tmp/requirements.txt
+
+WORKDIR /app
+
+USER appuser
+
+COPY timez.py timez.py
+
+# CMD ["python", "/app/timez.py"]
+
+CMD gunicorn --workers 4 --bind 0.0.0.0:$TIMEZ_PORT timez:app
